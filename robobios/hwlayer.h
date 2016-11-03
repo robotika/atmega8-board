@@ -19,7 +19,7 @@ extern "C" {
 #ifndef WIN32
 #include <inttypes.h>
 #else
-#include <stdint.h>
+#include "stdint.h"
 #endif
 
 #define PACKET_START 0xAB
