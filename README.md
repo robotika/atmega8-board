@@ -7,3 +7,6 @@ The primary goal of this repo is recovery of Gerda PCR robot
 This code was used more than 10 years ago on various small robots, see ATmega8
 board description (in Czech only, sorry)
 https://robotika.cz/articles/atmega8-board
+
+![ATmega8 board](https://robotika.cz/articles/atmega8-board/description.jpg)
+
