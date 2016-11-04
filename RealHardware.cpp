@@ -77,7 +77,7 @@ RealHardware::~RealHardware()
 
 void RealHardware::restoreCommunication()
 {
-  const int MAX_NUM_TRIES = 10;
+  const int MAX_NUM_TRIES = 20;
   int i;
   for(i = 0; i < MAX_NUM_TRIES; i++)
   {
@@ -95,15 +95,12 @@ void RealHardware::restoreCommunication()
 
 void RealHardware::synchronize()
 {
-  const int timeout = 1000; // 100ms
+  const int timeout = 1000; // ms
 
-repeat:
   int tmp;
   do
   {
     m_loggedComm->sendByte(PACKET_START);
-    m_loggedComm->sendByte(sizeof(HWWrite)+1);
-    m_loggedComm->sendByte(SERVO_BOT_CMD);
     m_loggedComm->sendByte(W_executeAt);
     m_loggedComm->sendByte(W_watchDog);
     m_loggedComm->sendByte(W_servo[0]);
@@ -112,9 +109,13 @@ repeat:
     m_loggedComm->sendByte(W_servo[3]);
     m_loggedComm->sendByte(W_digitalOutputs);
 
-    m_loggedComm->sendByte( 256 - ((sizeof(HWWrite)+1) + SERVO_BOT_CMD+ W_executeAt + W_watchDog 
+    m_loggedComm->sendByte(256 - (W_executeAt + W_watchDog
       + W_servo[0] + W_servo[1] + W_servo[2] + W_servo[3] + W_digitalOutputs));
-    
+
+    // unknown reason for "patch"
+    m_loggedComm->sendByte(ECHO_CHAR);
+    m_loggedComm->sendByte(ECHO_CHAR);
+
     tmp = m_loggedComm->waitForByte(timeout);
     if(tmp != PACKET_START)
     {
@@ -122,15 +123,9 @@ repeat:
     }
   } while( tmp != PACKET_START);
 
-  uint8_t len = m_loggedComm->waitForByte(timeout);
-  if(len != sizeof(HWRead)+1)
-    goto repeat;
-
-  uint8_t cmd = m_loggedComm->waitForByte(timeout);
-  if(cmd != (SERVO_BOT_CMD | 0x80))
-    goto repeat;
-
   R_timer = m_loggedComm->waitForByte(timeout);
+  uint8_t enc0 = m_loggedComm->waitForByte(timeout);  // ignored encoders
+  uint8_t enc1 =m_loggedComm->waitForByte(timeout);  // ignored encoders
   R_digitalInputs = m_loggedComm->waitForByte(timeout);
   
   for(size_t i = 0; i < sizeof(HWRead::R_analog); i++)
@@ -138,9 +133,7 @@ repeat:
     R_analog[i] = m_loggedComm->waitForByte(timeout);
   }
 
-  unsigned char checkSum = m_loggedComm->waitForByte(timeout);
-  checkSum += len;
-  checkSum += cmd;
+  unsigned char checkSum = m_loggedComm->waitForByte(timeout) + enc0 + enc1;
   checkSum += R_timer;
   checkSum += R_digitalInputs;
   for(size_t i = 0; i < sizeof(HWRead::R_analog); i++)

@@ -91,8 +91,6 @@ void Logger::synchronize()
     }
     else
     {
-      len = getLogByte(LogCommLine::OUTPUT_BYTE);
-      cmd = getLogByte(LogCommLine::OUTPUT_BYTE);
       W_executeAt = getLogByte(LogCommLine::OUTPUT_BYTE);
       W_watchDog = getLogByte(LogCommLine::OUTPUT_BYTE);
       W_servo[0] = getLogByte(LogCommLine::OUTPUT_BYTE);
@@ -103,13 +101,11 @@ void Logger::synchronize()
     }
 
     tmp = getLogByte(LogCommLine::OUTPUT_BYTE);
-  } while( (unsigned char)(len + cmd + W_executeAt + W_watchDog 
+  } while( (unsigned char)(W_executeAt + W_watchDog 
     + W_servo[0] + W_servo[1] + W_servo[2] + W_servo[3] + W_digitalOutputs + tmp));
 
   tmp = getLogByte(LogCommLine::INPUT_BYTE);
   // !!! TODO !!! check tmp = PACKET_START
-  len = getLogByte(LogCommLine::INPUT_BYTE);
-  cmd = getLogByte(LogCommLine::INPUT_BYTE);
   R_timer = getLogByte(LogCommLine::INPUT_BYTE);
   R_digitalInputs = getLogByte(LogCommLine::INPUT_BYTE);
   

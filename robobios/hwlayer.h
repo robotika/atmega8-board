@@ -32,7 +32,7 @@ struct HWRead
 {
 	uint8_t R_timer; //! ~500Hz
   uint8_t R_digitalInputs;
-  uint8_t R_analog[6];
+  uint8_t R_analog[8];
 };
 
 struct HWWrite
