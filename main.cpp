@@ -138,9 +138,12 @@ void cycle(AHardware *hw, int *time_arr)
   int i;
   for(i = 0; i < 3; i++)
   {
-    move_down(hw);
-    wait(hw, time_arr[i]);
-    move_up(hw);
+    if(time_arr[i] >= 0)
+    {
+      move_down(hw);
+      wait(hw, time_arr[i]);
+      move_up(hw);
+    }
     if(i < 2)
       move_right(hw);
   }
