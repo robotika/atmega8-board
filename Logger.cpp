@@ -104,9 +104,16 @@ void Logger::synchronize()
   } while( (unsigned char)(W_executeAt + W_watchDog 
     + W_servo[0] + W_servo[1] + W_servo[2] + W_servo[3] + W_digitalOutputs + tmp));
 
+  tmp = getLogByte(LogCommLine::OUTPUT_BYTE); // hacked ECHO_CHAR
+  tmp = getLogByte(LogCommLine::OUTPUT_BYTE); // hacked ECHO_CHAR
+
   tmp = getLogByte(LogCommLine::INPUT_BYTE);
   // !!! TODO !!! check tmp = PACKET_START
   R_timer = getLogByte(LogCommLine::INPUT_BYTE);
+
+  uint8_t enc0 = getLogByte(LogCommLine::INPUT_BYTE);  // ignored encoders
+  uint8_t enc1 = getLogByte(LogCommLine::INPUT_BYTE);  // ignored encoders
+
   R_digitalInputs = getLogByte(LogCommLine::INPUT_BYTE);
   
   for(size_t i = 0; i < sizeof(HWRead::R_analog); i++)
