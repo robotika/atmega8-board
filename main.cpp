@@ -109,9 +109,10 @@ void move_up(AHardware *hw, int timeout_ms=1000)
   int limit;
   for(limit = g_time_ms + timeout_ms; g_time_ms < limit;)
   {
-    hw->W_servo[0] = 250; // no idea why it is needed :(
-    hw->W_servo[1] = 250;
-    hw->W_servo[UP_DOWN_SERVO] = 250;
+    hw->W_servo[0] = 255; // no idea why it is needed :(
+    hw->W_servo[1] = 255;
+    hw->W_servo[2] = 0;
+    hw->W_servo[UP_DOWN_SERVO] = 255;
     sync(hw);
     if((hw->R_digitalInputs & UP_LIMIT) == 0)
       break;
@@ -146,22 +147,41 @@ void cycle(AHardware *hw, int *time_arr)
   move_left(hw);  
 }
 
-int main(void)
+int str2int(char *s)
 {
+  int i;
+  if( sscanf(s, "%d", &i) == 1 )
+    return i;
+  return -1;
+}
+
+int main(int argc, char *argv[])
+{
+  if(argc < 6)
+  {
+    fprintf(stderr, "monopost <com> <num loops> <1st time ms> <2nd time ms> <3rd time ms>\n");
+    return -1;
+  }
+
+  char *com_name = argv[1];
+  int num_loops = str2int(argv[2]);
+  int time_arr[3];
+  time_arr[0] = str2int(argv[3]);
+  time_arr[1] = str2int(argv[4]);
+  time_arr[2] = str2int(argv[5]);
+
 #ifdef __unix__
   AHardware *hw = new RealHardware("dummy", "/dev/ttyS0", B9600);
 #else
-  AHardware *hw = new RealHardware("dummy", "\\\\.\\COM15", 38400);
+  AHardware *hw = new RealHardware("logs\\pcr", com_name, 38400);
 #endif
 
   // AHardware *hw = new Logger("dummy_161107_0653.log");
   // AHardware *hw = new Logger("dummy_161107_0740.log", Logger::CHECK_OUTPUT);
   
-
-  init(hw);
   int loop;
-  int time_arr[] = {1000, 1000, 1000};
-  for(loop = 0; loop < 3; loop++)
+  init(hw);
+  for(loop = 0; loop < num_loops; loop++)
   {
     fprintf(stderr, "LOOP %d\n", loop);
     cycle(hw, time_arr);
